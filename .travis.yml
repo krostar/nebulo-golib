@@ -1,0 +1,31 @@
+language: go
+
+sudo: required
+
+go:
+  - 1.8.x
+
+env:
+  global:
+    secure: JcQzYFTV2haLNIViTMsUFfDFIyB1QqwdEjGSuO3/AbZ8nPJpKeIGgY85o+kcmFQfuIWquC6OivcjOKJeWWAJyd8zES/6JUxohFDLQcsI+05cWtOJXBmZe6Iy7ztEotDTSWKPHFZYHg2kEpMDkzYDAv5MZ3Zi84sm2OopiMFJgLLKe5HQ+w24boVacRV3fQRBXIxMwDd574l9UskGsaVhfSep0W0JiPigf6dThgu7ownbTQnTUHcq1pXJNlrekNJOXwV/3uZrzjflRH+BQxMHaO/hibjCjjr07kb1bbDOuCFQvNNTEhnUS1+PjScph402Cho6BabcScLfz36n4iV0iIH1YJgI3NPKxiGc3G5gs8f6o+Jb18+4x40Hyc5SqXahmT1mdr7u3/l1LYexmfLfizaie2qxS+1Wj7X5NlJKXqs7v2WW3Ox2n8ZhjU3owtdZCHAMPw0ysIjRZg3L7vDePgIn8pMGN/bWcrttNMucm1BJ/LMX0m2HedhVnEArLS+iY6F9mOTzrsye1ZhYxrQjhvpkY+6soeFMZfYMUUHOFyf3MW8Gr2OEI/Ov+lIxfr9pxLXATpS1gAueW8pEC3ITJCE1FHyooLjYQspTg59qTRvIFHZkUh3z4jKRukme0/JZkqxZwl6POlcEyrli+roV4dnDTET8Oik9GT08X2OttJU=
+
+before_install:
+  - echo "before_install step"
+  - lsb_release -a
+  - which go
+  - whereis go
+  - go version
+  - go env
+  - env
+  - pwd
+
+install:
+  - echo "install step"
+  - go get github.com/twitchtv/retool
+  - make vendor
+
+script:
+  - echo "script step"
+  - make test CI=1
+  - make coverage CI=1
+  - retool do goveralls -coverprofile=coverage/coverage.out -service=travis-ci
