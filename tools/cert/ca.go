@@ -8,8 +8,8 @@ import (
 	"os"
 )
 
-// CAFromFiles load files from path and return a certificate and a password key
-func CAFromFiles(certPath string, keyPath string, keyPassword []byte) (cert *x509.Certificate, key crypto.Signer, err error) {
+// CertAndKeyFromFiles load files from path and return a certificate and a password key
+func CertAndKeyFromFiles(certPath string, keyPath string, keyPassword []byte) (cert *x509.Certificate, key crypto.Signer, err error) {
 	cert, err = ParseCertificatePEMFromFile(certPath)
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to decode PEM encoded CA certificate file: %v", err)
