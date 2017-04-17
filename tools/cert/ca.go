@@ -1,26 +1,11 @@
 package cert
 
 import (
-	"crypto"
 	"crypto/x509"
 	"encoding/base64"
 	"fmt"
 	"os"
 )
-
-// CertAndKeyFromFiles load files from path and return a certificate and a password key
-func CertAndKeyFromFiles(certPath string, keyPath string, keyPassword []byte) (cert *x509.Certificate, key crypto.Signer, err error) {
-	cert, err = ParseCertificatePEMFromFile(certPath)
-	if err != nil {
-		return nil, nil, fmt.Errorf("unable to decode PEM encoded CA certificate file: %v", err)
-	}
-
-	caPrivateKey, err := ParsePrivateKeyPEMFromFile(keyPath, keyPassword)
-	if err != nil {
-		return nil, nil, fmt.Errorf("unable to decode PEM encoded CA private key file: %v", err)
-	}
-	return cert, caPrivateKey, err
-}
 
 // Revoke the certificate made him unusable for login
 func Revoke(cert *x509.Certificate) (err error) {

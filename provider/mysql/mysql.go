@@ -32,7 +32,7 @@ func Use(config interface{}) (err error) {
 		Config: mysqlConfig,
 	}
 
-	p.DB, err = gorm.Open("mysql", fmt.Sprintf("%s@%s/%s", credentials, mysqlConfig.Address, mysqlConfig.Database))
+	p.DB, err = gorm.Open("mysql", fmt.Sprintf("%s@%s/%s?parseTime=true", credentials, mysqlConfig.Address, mysqlConfig.Database))
 	if err != nil {
 		return fmt.Errorf("unable to connect to mysql database: %v", err)
 	}

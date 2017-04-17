@@ -130,6 +130,20 @@ func VerifyCertificate(cert *x509.Certificate) (revoked bool, err error) {
 	return false, nil
 }
 
+// CertAndKeyFromFiles load files from path and return a certificate and a password key
+func CertAndKeyFromFiles(certPath string, keyPath string, keyPassword []byte) (cert *x509.Certificate, key crypto.Signer, err error) {
+	cert, err = ParseCertificatePEMFromFile(certPath)
+	if err != nil {
+		return nil, nil, fmt.Errorf("unable to decode PEM encoded CA certificate file: %v", err)
+	}
+
+	caPrivateKey, err := ParsePrivateKeyPEMFromFile(keyPath, keyPassword)
+	if err != nil {
+		return nil, nil, fmt.Errorf("unable to decode PEM encoded CA private key file: %v", err)
+	}
+	return cert, caPrivateKey, err
+}
+
 // FingerprintSHA256 returns the user presentation of the key's
 // fingerprint as unpadded base64 encoded sha256 hash.
 // This format was introduced from OpenSSH 6.8.
