@@ -7,6 +7,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
@@ -24,6 +25,32 @@ func EncodeCertificatePEM(cert *x509.Certificate) (encoded []byte, err error) {
 	if err = pem.Encode(&buffer, &pem.Block{
 		Type:  "CERTIFICATE",
 		Bytes: cert.Raw,
+	}); err != nil {
+		return nil, fmt.Errorf("unable to encode pem certificate: %v", err)
+	}
+	return buffer.Bytes(), nil
+}
+
+// EncodePrivateKeyPEM encodes a single private key to PEM
+func EncodePrivateKeyPEM(key crypto.PrivateKey) (encoded []byte, err error) {
+	var buffer bytes.Buffer
+	var keyBytes []byte
+
+	switch k := key.(type) {
+	case *rsa.PrivateKey:
+		keyBytes = x509.MarshalPKCS1PrivateKey(k)
+	case *ecdsa.PrivateKey:
+		keyBytes, err = x509.MarshalECPrivateKey(k)
+		if err != nil {
+			return nil, fmt.Errorf("unable to marshal ecdsa key: %v", err)
+		}
+	default:
+		return nil, errors.New("unknow private key type")
+	}
+
+	if err = pem.Encode(&buffer, &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: keyBytes,
 	}); err != nil {
 		return nil, fmt.Errorf("unable to encode pem certificate: %v", err)
 	}
@@ -54,7 +81,7 @@ func ParseCertificatePEM(certPEM []byte) (cert *x509.Certificate, err error) {
 }
 
 // ParsePrivateKeyPEMFromFile call ParsePrivateKeyPEM with the content of a file
-func ParsePrivateKeyPEMFromFile(filename string, password []byte) (key crypto.Signer, err error) {
+func ParsePrivateKeyPEMFromFile(filename string, password []byte) (key crypto.PrivateKey, err error) {
 	raw, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read file %s: %v", filename, err)
@@ -65,7 +92,7 @@ func ParsePrivateKeyPEMFromFile(filename string, password []byte) (key crypto.Si
 // ParsePrivateKeyPEM parses and returns a PEM-encoded private key.
 // The private key may be a potentially encrypted PKCS#8, PKCS#1, or elliptic private key.
 // nolint: gocyclo
-func ParsePrivateKeyPEM(keyPEM []byte, password []byte) (key crypto.Signer, err error) {
+func ParsePrivateKeyPEM(keyPEM []byte, password []byte) (key crypto.PrivateKey, err error) {
 	keyPEM = bytes.TrimSpace(keyPEM)
 	block, _ := pem.Decode(keyPEM)
 	if block == nil {
@@ -131,17 +158,39 @@ func VerifyCertificate(cert *x509.Certificate) (revoked bool, err error) {
 }
 
 // CertAndKeyFromFiles load files from path and return a certificate and a password key
-func CertAndKeyFromFiles(certPath string, keyPath string, keyPassword []byte) (cert *x509.Certificate, key crypto.Signer, err error) {
+func CertAndKeyFromFiles(certPath string, keyPath string, keyPassword []byte) (cert *x509.Certificate, key crypto.PrivateKey, err error) {
 	cert, err = ParseCertificatePEMFromFile(certPath)
 	if err != nil {
-		return nil, nil, fmt.Errorf("unable to decode PEM encoded CA certificate file: %v", err)
+		return nil, nil, fmt.Errorf("unable to decode PEM encoded certificate file %q: %v", certPath, err)
 	}
 
 	caPrivateKey, err := ParsePrivateKeyPEMFromFile(keyPath, keyPassword)
 	if err != nil {
-		return nil, nil, fmt.Errorf("unable to decode PEM encoded CA private key file: %v", err)
+		return nil, nil, fmt.Errorf("unable to decode PEM encoded private key file %q: %v", keyPath, err)
 	}
 	return cert, caPrivateKey, err
+}
+
+// TLSCertificateFromFiles load files from path and return a tls certificate
+func TLSCertificateFromFiles(certPath string, keyPath string, keyPassword []byte) (tlsCert *tls.Certificate, err error) {
+
+	cert, key, err := CertAndKeyFromFiles(certPath, keyPath, keyPassword)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get cert and key from files: %v", err)
+	}
+
+	certBytes, err := EncodeCertificatePEM(cert)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get cert and key from files: %v", err)
+	}
+
+	keyBytes, err := EncodePrivateKeyPEM(key)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get cert and key from files: %v", err)
+	}
+
+	crt, err := tls.X509KeyPair(certBytes, keyBytes)
+	return &crt, err
 }
 
 // FingerprintSHA256 returns the user presentation of the key's
