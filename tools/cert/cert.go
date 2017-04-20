@@ -157,8 +157,8 @@ func VerifyCertificate(cert *x509.Certificate) (revoked bool, err error) {
 	return false, nil
 }
 
-// CertAndKeyFromFiles load files from path and return a certificate and a password key
-func CertAndKeyFromFiles(certPath string, keyPath string, keyPassword []byte) (cert *x509.Certificate, key crypto.PrivateKey, err error) {
+// KeyPairFromFiles load files from path and return a certificate and a password key
+func KeyPairFromFiles(certPath string, keyPath string, keyPassword []byte) (cert *x509.Certificate, key crypto.PrivateKey, err error) {
 	cert, err = ParseCertificatePEMFromFile(certPath)
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to decode PEM encoded certificate file %q: %v", certPath, err)
@@ -174,7 +174,7 @@ func CertAndKeyFromFiles(certPath string, keyPath string, keyPassword []byte) (c
 // TLSCertificateFromFiles load files from path and return a tls certificate
 func TLSCertificateFromFiles(certPath string, keyPath string, keyPassword []byte) (tlsCert *tls.Certificate, err error) {
 
-	cert, key, err := CertAndKeyFromFiles(certPath, keyPath, keyPassword)
+	cert, key, err := KeyPairFromFiles(certPath, keyPath, keyPassword)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get cert and key from files: %v", err)
 	}
