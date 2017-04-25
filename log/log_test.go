@@ -113,6 +113,12 @@ func TestAllLog(t *testing.T) {
 			t.Fatal(err, repr, data)
 		}
 	}
+
+	// test errorIf
+	if err = ErrorIf(errors.New("this is an error")); err == nil {
+		t.Fatal("ErrorIf should return an error when an error is passed")
+	}
+
 }
 
 func TestOutputFile(t *testing.T) {

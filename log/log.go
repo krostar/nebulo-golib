@@ -126,6 +126,14 @@ func Errorf(format string, args ...interface{}) {
 	Logf(ERROR, 2, format, args...)
 }
 
+// ErrorIf return and log an error message
+func ErrorIf(err error) error {
+	if err != nil {
+		Errorln(err)
+	}
+	return err
+}
+
 // Criticalln log critical messages
 func Criticalln(args ...interface{}) {
 	Logln(CRITICAL, 2, args...)
