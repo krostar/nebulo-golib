@@ -164,11 +164,41 @@ func KeyPairFromFiles(certPath string, keyPath string, keyPassword []byte) (cert
 		return nil, nil, fmt.Errorf("unable to decode PEM encoded certificate file %q: %v", certPath, err)
 	}
 
-	caPrivateKey, err := ParsePrivateKeyPEMFromFile(keyPath, keyPassword)
+	key, err = ParsePrivateKeyPEMFromFile(keyPath, keyPassword)
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to decode PEM encoded private key file %q: %v", keyPath, err)
 	}
-	return cert, caPrivateKey, err
+	return cert, key, err
+}
+
+// RSAFromFiles load files from path and return a certificate and a password key
+func RSAKeysFromFiles(pubPath string, keyPath string, keyPassword []byte) (pub *rsa.PublicKey, key *rsa.PrivateKey, err error) {
+	raw, err := ioutil.ReadFile(pubPath)
+	if err != nil {
+		return nil, nil, fmt.Errorf("unable to read file %s: %v", pubPath, err)
+	}
+	block, _ := pem.Decode([]byte(raw))
+	if block == nil {
+		return nil, nil, errors.New("failed to parse PEM block containing the public key")
+	}
+	publicKey, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to parse DER encoded public key: %v", err)
+	}
+	pub, ok := publicKey.(*rsa.PublicKey)
+	if !ok {
+		return nil, nil, errors.New("cant cast private key to rsa private key")
+	}
+
+	privateKey, err := ParsePrivateKeyPEMFromFile(keyPath, keyPassword)
+	if err != nil {
+		return nil, nil, fmt.Errorf("unable to decode PEM encoded private key file %q: %v", keyPath, err)
+	}
+	key, ok = privateKey.(*rsa.PrivateKey)
+	if !ok {
+		return nil, nil, errors.New("cant cast private key to rsa private key")
+	}
+	return pub, key, err
 }
 
 // TLSCertificateFromFiles load files from path and return a tls certificate
