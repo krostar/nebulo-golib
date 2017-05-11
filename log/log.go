@@ -129,7 +129,7 @@ func Errorf(format string, args ...interface{}) {
 // ErrorIf return and log an error message
 func ErrorIf(err error) error {
 	if err != nil {
-		Errorln(err)
+		Logln(ERROR, 2, err)
 	}
 	return err
 }
