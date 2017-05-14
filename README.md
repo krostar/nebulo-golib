@@ -1,6 +1,7 @@
 # [nebulo-golib](https://github.com/krostar/nebulo-golib) [![License](https://img.shields.io/github/license/krostar/nebulo-golib.svg)](https://tldrlegal.com/license/gnu-general-public-license-v3-(gpl-3)) [![Godoc](https://godoc.org/github.com/krostar/nebulo-golib?status.svg)](https://godoc.org/github.com/krostar/nebulo-golib)
 
-Nebulo is a secure way of instant messaging that respect and protect your privacy.
+This is the library used for Nebulo client and server.
+/!\\ This project is a school project, it's not finished, it's not 100% working, don't use it unless you know what you do /!\\
 
 [![Build status](https://travis-ci.org/krostar/nebulo-golib.svg?branch=dev)](https://travis-ci.org/krostar/nebulo-golib) [![Go Report Card](https://goreportcard.com/badge/github.com/krostar/nebulo)](https://goreportcard.com/report/github.com/krostar/nebulo-golib) [![Codebeat status](https://codebeat.co/badges/54741d30-dff6-45e1-bee4-13004944d118)](https://codebeat.co/projects/github-com-krostar-nebulo-golib-dev) [![Coverage status](https://coveralls.io/repos/github/krostar/nebulo-golib/badge.svg?branch=dev)](https://coveralls.io/github/krostar/nebulo-golib?branch=dev)
 
